@@ -18,8 +18,8 @@ def save_questions(questions):
 
 st.set_page_config(page_title="虫虫宗Python练习籍", page_icon="⚡", layout="centered")
 
-st.title("⚡ 虫虫宗 · Python 练习籍")
-st.caption("“道法自然，代码即神通” — 宗门长老寄语")
+st.title("☯️ 虫虫宗 · Python 练习籍")
+st.caption("“心脏撒撒给呦！” — 虫虫宗主寄语")
 
 with st.sidebar:
     st.header("📜 撰写新试炼")
