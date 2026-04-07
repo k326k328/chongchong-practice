@@ -4,7 +4,7 @@ import os
 from openai import OpenAI
 
 # ==================== 宗门秘钥配置 ====================
-API_KEY = "sk-c11570678aed425eba774814cd514c02"
+API_KEY = os.environ.get('DEEPSEEK_API_KEY', '')
 DATA_FILE = "yu_jian.json"
 AI_MODEL = "deepseek-chat"
 
@@ -22,6 +22,12 @@ def save_questions(questions):
 
 def check_answer_with_ai(question, user_answer):
     """天机长老评判答案"""
+    if not API_KEY:
+        return {
+            "correct": False, 
+            "feedback": "⚠️ 天机长老尚未出关，请配置DEEPSEEK_API_KEY环境变量。\n\n【配置方法】\n本地：设置系统环境变量 DEEPSEEK_API_KEY\n云端：在Streamlit Cloud的Secrets中添加"
+        }
+    
     try:
         client = OpenAI(
             api_key=API_KEY,
