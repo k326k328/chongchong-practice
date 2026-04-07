@@ -25,7 +25,7 @@ with st.sidebar:
     st.header("📜 撰写新试炼")
     with st.form("add_form"):
         question = st.text_area("试炼题目(描述功法难题)", height=200)
-        answer = st.text_area("心法答案(标准解法)", height=200)
+        answer = st.text_area("心法答案(标准解法)", height=300)
         submitted = st.form_submit_button("✨ 铭刻入玉简", use_container_width=True)
         if submitted and question and answer:
             questions = load_questions()
