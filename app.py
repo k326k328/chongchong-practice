@@ -20,12 +20,37 @@ def save_questions(questions):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(questions, f, ensure_ascii=False, indent=2)
 
+def save_user_answers():
+    """保存用户作答记录"""
+    answers_data = {}
+    for key in st.session_state:
+        if key.startswith("result_"):
+            answers_data[key] = st.session_state[key]
+    
+    if answers_data:
+        answer_file = "user_answers.json"
+        with open(answer_file, "w", encoding="utf-8") as f:
+            json.dump(answers_data, f, ensure_ascii=False, indent=2)
+
+def load_user_answers():
+    """加载用户作答记录"""
+    answer_file = "user_answers.json"
+    if os.path.exists(answer_file):
+        try:
+            with open(answer_file, "r", encoding="utf-8") as f:
+                answers_data = json.load(f)
+                for key, value in answers_data.items():
+                    if key not in st.session_state:
+                        st.session_state[key] = value
+        except Exception:
+            pass
+
 def check_answer_with_ai(question, user_answer):
-    """天机长老评判答案"""
+    """瑰姝长老评判答案"""
     if not API_KEY:
         return {
             "correct": False, 
-            "feedback": "⚠️ 天机长老尚未出关，请配置DEEPSEEK_API_KEY环境变量。\n\n【配置方法】\n本地：设置系统环境变量 DEEPSEEK_API_KEY\n云端：在Streamlit Cloud的Secrets中添加"
+            "feedback": "⚠️ 瑰姝长老尚未出关，请配置DEEPSEEK_API_KEY环境变量。\n\n【配置方法】\n本地：设置系统环境变量 DEEPSEEK_API_KEY\n云端：在Streamlit Cloud的Secrets中添加"
         }
     
     try:
@@ -34,7 +59,7 @@ def check_answer_with_ai(question, user_answer):
             base_url="https://api.deepseek.com"
         )
         
-        prompt = f"""你是修真界Python宗门的天机长老，负责评判弟子的试炼答案。
+        prompt = f"""你是修真界Python宗门的瑰姝长老，负责评判弟子的试炼答案。
 
 【试炼题目】
 {question}
@@ -63,7 +88,7 @@ def check_answer_with_ai(question, user_answer):
     except Exception as e:
         return {
             "correct": False, 
-            "feedback": f"⚠️ 天机长老正在闭关，暂无法评判。错误信息：{str(e)}"
+            "feedback": f"⚠️ 瑰姝长老正在闭关，暂无法评判。错误信息：{str(e)}"
         }
 
 # ==================== 页面配置 ====================
@@ -74,52 +99,50 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# ==================== 初始化会话状态 ====================
+# 加载用户作答记录
+load_user_answers()
+
 # ==================== 自定义CSS ====================
 st.markdown("""
 <style>
-    /* 整体背景 */
+    /* 整体背景 - 明亮清新风格 */
     .stApp {
-        background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-        color: #e8e8e8;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #ffffff;
     }
     
-    /* 标题样式 */
+    /* 标题样式 - 柔和光晕 */
     .main-title {
         text-align: center;
         font-size: 2.5rem;
-        color: #ffd700;
-        text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
+        color: #ffffff;
+        text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
         margin-bottom: 0.5rem;
-        animation: glow 2s ease-in-out infinite alternate;
-    }
-    
-    @keyframes glow {
-        from { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700; }
-        to { text-shadow: 0 0 20px #ffd700, 0 0 30px #ffd700, 0 0 40px #ffd700; }
     }
     
     .subtitle {
         text-align: center;
         font-size: 1.1rem;
-        color: #b0b0b0;
+        color: #f0e6ff;
         font-style: italic;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
     }
     
-    /* 关卡卡片 */
+    /* 关卡卡片 - 清爽设计 */
     .question-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 2px solid #ffd700;
+        background: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.3);
         border-radius: 15px;
         padding: 20px;
         margin: 15px 0;
-        box-shadow: 0 8px 32px rgba(255, 215, 0, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(10px);
     }
     
     .level-badge {
-        background: linear-gradient(135deg, #ffd700, #ffed4e);
-        color: #1a1a2e;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: #ffffff;
         padding: 5px 15px;
         border-radius: 20px;
         font-weight: bold;
@@ -127,18 +150,18 @@ st.markdown("""
         margin-bottom: 10px;
     }
     
-    /* 成功/失败提示 */
+    /* 成功/失败提示 - 明亮配色 */
     .success-box {
-        background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 200, 0, 0.1));
-        border: 2px solid #00ff00;
+        background: linear-gradient(135deg, rgba(72, 187, 120, 0.2), rgba(56, 161, 105, 0.2));
+        border: 2px solid #48bb78;
         border-radius: 10px;
         padding: 15px;
         margin-top: 10px;
     }
     
     .error-box {
-        background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(200, 0, 0, 0.1));
-        border: 2px solid #ff4444;
+        background: linear-gradient(135deg, rgba(245, 101, 101, 0.2), rgba(229, 62, 62, 0.2));
+        border: 2px solid #f56565;
         border-radius: 10px;
         padding: 15px;
         margin-top: 10px;
@@ -146,14 +169,15 @@ st.markdown("""
     
     /* 侧边栏 */
     .sidebar-text {
-        color: #ffd700;
+        color: #ffffff;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ==================== 主页面 ====================
 st.markdown('<div class="main-title">🏯 虫虫宗 · Python修炼殿 🏯</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">"道法自然，代码即神通" —— 天机长老寄语</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">"道法自然，代码即神通" —— 瑰姝长老寄语</div>', unsafe_allow_html=True)
+st.markdown('<div style="text-align: center; font-size: 1.3rem; color: #ffe6f0; font-weight: bold; margin-bottom: 2rem; text-shadow: 0 2px 8px rgba(255, 105, 180, 0.5);">💖 心脏撒撒给呦！—— 虫虫宗主 💖</div>', unsafe_allow_html=True)
 
 # ==================== 侧边栏 ====================
 with st.sidebar:
@@ -246,14 +270,22 @@ else:
                     if not user_answer.strip():
                         st.warning("⚠️ 尚未作答，如何评判？", icon="⚠️")
                     else:
-                        with st.spinner("🔮 天机长老正在推演天机..."):
+                        with st.spinner("🔮 瑰姝长老正在推演天机..."):
                             result = check_answer_with_ai(q["question"], user_answer)
                             st.session_state[f"result_{idx}"] = result
+                            save_user_answers()
             
             with col_btn2:
                 if st.button("🗑️ 焚毁此卷", key=f"del_{idx}", use_container_width=True):
                     questions.pop(idx)
                     save_questions(questions)
+                    
+                    # 删除对应的作答记录
+                    result_key = f"result_{idx}"
+                    if result_key in st.session_state:
+                        del st.session_state[result_key]
+                    save_user_answers()
+                    
                     st.success("🔥 此卷已焚毁", icon="🔥")
                     st.rerun()
             
