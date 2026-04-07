@@ -16,15 +16,15 @@ def save_questions(questions):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(questions, f, ensure_ascii=False, indent=2)
 
-st.set_page_config(page_title="虫虫宗Python练习籍", page_icon="⚡", layout="centered")
+st.set_page_config(page_title="虫虫宗Python练习籍", page_icon="⚡", layout="wide")
 
-st.title("☯️ 虫虫宗 · Python 练习籍")
-st.caption("“心脏撒撒给呦！” — 虫虫宗主寄语")
+st.title("⚡ 虫虫宗 · Python 练习籍")
+st.caption("“道法自然，代码即神通” — 宗门长老寄语")
 
 with st.sidebar:
     st.header("📜 撰写新试炼")
     with st.form("add_form"):
-        question = st.text_area("试炼题目（描述功法难题）")
+        question = st.text_area("试炼题目（描述功法难题）", height=150)
         answer = st.text_input("心法答案（标准解法）")
         submitted = st.form_submit_button("✨ 铭刻入玉简", use_container_width=True)
         if submitted and question and answer:
